@@ -2,7 +2,6 @@ package tarmaq
 
 import (
 	"fmt"
-	"slices"
 	"testing"
 	"time"
 
@@ -10,7 +9,6 @@ import (
 	git "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/memory"
-	"github.com/mazrean/mcp-tarmaq/pkg/collection"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -232,20 +230,4 @@ func TestGitRepository_GetTransactions(t *testing.T) {
 			assert.Equal(t, tt.wantFileMap, gotFileMap, "File map does not match")
 		})
 	}
-}
-
-// Helper function for Set
-func makeFileSet(ids ...FileID) collection.Set[FileID] {
-	s := collection.NewSet[FileID]()
-	for _, id := range ids {
-		s.Add(id)
-	}
-	return s
-}
-
-// Function to convert Set to slice and assert
-func assertSetEqual(t *testing.T, expected, actual collection.Set[FileID], msgAndArgs ...interface{}) {
-	expectedSlice := slices.Collect(expected.Iter())
-	actualSlice := slices.Collect(actual.Iter())
-	assert.ElementsMatch(t, expectedSlice, actualSlice, msgAndArgs...)
 }
