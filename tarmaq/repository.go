@@ -17,27 +17,24 @@ type Repository interface {
 var _ Repository = &GitRepository{}
 
 type GitRepository struct {
-	repo *git.Repository
+	repo             *git.Repository
+	transactionLimit int
 }
 
-func NewGitRepository(ditgitPath string) (*GitRepository, error) {
+func NewGitRepository(ditgitPath string, transactionLimit int) (*GitRepository, error) {
 	repo, err := git.PlainOpen(ditgitPath)
 	if err != nil {
 		return nil, err
 	}
 
 	return &GitRepository{
-		repo: repo,
+		repo:             repo,
+		transactionLimit: transactionLimit,
 	}, nil
 }
 
 func (r *GitRepository) GetTransactions() ([]*Transaction, map[FileID]FilePath, error) {
-	ref, err := r.repo.Head()
-	if err != nil {
-		return nil, nil, fmt.Errorf("get HEAD: %w", err)
-	}
-
-	commitIter, err := r.repo.Log(&git.LogOptions{From: ref.Hash()})
+	commitIter, err := r.repo.Log(&git.LogOptions{})
 	if err != nil {
 		return nil, nil, fmt.Errorf("get commit iterator: %w", err)
 	}
@@ -48,7 +45,7 @@ func (r *GitRepository) GetTransactions() ([]*Transaction, map[FileID]FilePath, 
 	latestFileMap := make(map[FileID]FilePath)
 	fileIDMap := make(map[string]FileID)
 
-	err = commitIter.ForEach(func(commit *object.Commit) error {
+	for commit, err := commitIter.Next(); err == nil; commit, err = commitIter.Next() {
 		files := collection.NewSet[FileID]()
 
 		var parentTree *object.Tree
@@ -66,14 +63,14 @@ func (r *GitRepository) GetTransactions() ([]*Transaction, map[FileID]FilePath, 
 					slog.String("parent", parent.Hash.String()),
 					slog.String("error", err.Error()),
 				)
-				return nil
+				continue
 			}
 		default:
 			slog.Warn("failed to get parent",
 				slog.String("commit", commit.Hash.String()),
 				slog.String("error", err.Error()),
 			)
-			return nil
+			continue
 		}
 
 		commitTree, err := commit.Tree()
@@ -82,7 +79,7 @@ func (r *GitRepository) GetTransactions() ([]*Transaction, map[FileID]FilePath, 
 				slog.String("commit", commit.Hash.String()),
 				slog.String("error", err.Error()),
 			)
-			return nil
+			continue
 		}
 
 		changes, err := parentTree.Diff(commitTree)
@@ -91,7 +88,7 @@ func (r *GitRepository) GetTransactions() ([]*Transaction, map[FileID]FilePath, 
 				slog.String("commit", commit.Hash.String()),
 				slog.String("error", err.Error()),
 			)
-			return nil
+			continue
 		}
 
 		for _, change := range changes {
@@ -115,13 +112,10 @@ func (r *GitRepository) GetTransactions() ([]*Transaction, map[FileID]FilePath, 
 			transactions = append(transactions, &Transaction{
 				Files: files,
 			})
+			if r.transactionLimit != 0 && len(transactions) >= r.transactionLimit {
+				break
+			}
 		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, nil, fmt.Errorf("iterate commits: %w", err)
 	}
 
 	return transactions, latestFileMap, nil
