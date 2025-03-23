@@ -1,6 +1,10 @@
 package tarmaq
 
-import "log/slog"
+import (
+	"log/slog"
+
+	"github.com/mazrean/mcp-tarmaq/pkg/collection"
+)
 
 type Tarmaq struct {
 	Repository Repository
@@ -22,19 +26,46 @@ type Result struct {
 	Support    uint64
 }
 
-func (t *Tarmaq) Execute(query *Query) ([]*Result, error) {
+func (t *Tarmaq) Execute(files []FilePath, minConfidence float64, minSupport uint64) ([]*Result, error) {
 	transactions, fileMap, err := t.Repository.GetTransactions()
 	if err != nil {
 		return nil, err
 	}
 
+	query := t.createQuery(files, fileMap)
+
 	for _, filter := range t.TxFilters {
 		transactions = filter.Filter(transactions, query)
 	}
 
-	rules := t.Extractor.Extract(transactions, query)
+	rules := t.Extractor.Extract(transactions, query, minConfidence, minSupport)
 
 	return t.createResults(rules, fileMap), nil
+}
+
+func (t *Tarmaq) createQuery(paths []FilePath, fileMap map[FileID]FilePath) *Query {
+	query := &Query{
+		Files: collection.NewSet[FileID](),
+	}
+
+	revFileMap := make(map[FilePath]FileID, len(fileMap))
+	for id, path := range fileMap {
+		revFileMap[path] = id
+	}
+
+	for _, path := range paths {
+		id, ok := revFileMap[path]
+		if !ok {
+			slog.Warn("file not found",
+				slog.String("path", string(path)),
+			)
+			continue
+		}
+
+		query.Files.Add(id)
+	}
+
+	return query
 }
 
 func (t *Tarmaq) createResults(rules []*Rule, fileMap map[FileID]FilePath) []*Result {

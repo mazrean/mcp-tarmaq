@@ -7,16 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewAssociationRuleExtractor(t *testing.T) {
-	minConfidence := 0.7
-	minSupport := uint64(3)
-
-	extractor := NewAssociationRuleExtractor(minConfidence, minSupport)
-
-	assert.Equal(t, minConfidence, extractor.minConfidence)
-	assert.Equal(t, minSupport, extractor.minSupport)
-}
-
 func TestAssociationRuleExtractor_Extract(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -141,8 +131,8 @@ func TestAssociationRuleExtractor_Extract(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			extractor := NewAssociationRuleExtractor(tt.minConfidence, tt.minSupport)
-			rules := extractor.Extract(tt.transactions, tt.query)
+			extractor := NewAssociationRuleExtractor()
+			rules := extractor.Extract(tt.transactions, tt.query, tt.minConfidence, tt.minSupport)
 
 			assert.Len(t, rules, len(tt.expectedRules))
 

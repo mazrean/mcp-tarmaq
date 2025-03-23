@@ -21,8 +21,8 @@ type GitRepository struct {
 	transactionLimit int
 }
 
-func NewGitRepository(ditgitPath string, transactionLimit int) (*GitRepository, error) {
-	repo, err := git.PlainOpen(ditgitPath)
+func NewGitRepository(repoPath string, transactionLimit int) (*GitRepository, error) {
+	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
 		return nil, err
 	}

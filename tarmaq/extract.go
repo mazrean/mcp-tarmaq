@@ -7,24 +7,23 @@ import (
 )
 
 type Extractor interface {
-	Extract(transactions []*Transaction, query *Query) []*Rule
+	Extract(transactions []*Transaction, query *Query, minConfidence float64, minSupport uint64) []*Rule
 }
 
 var _ Extractor = &AssociationRuleExtractor{}
 
-type AssociationRuleExtractor struct {
-	minConfidence float64
-	minSupport    uint64
+type AssociationRuleExtractor struct{}
+
+func NewAssociationRuleExtractor() *AssociationRuleExtractor {
+	return &AssociationRuleExtractor{}
 }
 
-func NewAssociationRuleExtractor(minConfidence float64, minSupport uint64) *AssociationRuleExtractor {
-	return &AssociationRuleExtractor{
-		minConfidence: minConfidence,
-		minSupport:    minSupport,
-	}
-}
-
-func (e *AssociationRuleExtractor) Extract(transactions []*Transaction, query *Query) []*Rule {
+func (e *AssociationRuleExtractor) Extract(
+	transactions []*Transaction,
+	query *Query,
+	minConfidence float64,
+	minSupport uint64,
+) []*Rule {
 	supportMap := make(SupportMap)
 	for _, tx := range transactions {
 		left, rights := query.Apply(tx)
@@ -41,7 +40,7 @@ func (e *AssociationRuleExtractor) Extract(transactions []*Transaction, query *Q
 
 	rules := []*Rule{}
 	for rule := range supportMap.Iter() {
-		if rule.Confidence >= e.minConfidence && rule.Support >= e.minSupport {
+		if rule.Confidence >= minConfidence && rule.Support >= minSupport {
 			rules = append(rules, rule)
 		}
 	}
