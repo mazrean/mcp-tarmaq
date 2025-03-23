@@ -131,8 +131,8 @@ func TestAssociationRuleExtractor_Extract(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			extractor := NewAssociationRuleExtractor()
-			rules := extractor.Extract(tt.transactions, tt.query, tt.minConfidence, tt.minSupport)
+			extractor := NewAssociationRuleExtractor(tt.minConfidence, tt.minSupport)
+			rules := extractor.Extract(tt.transactions, tt.query)
 
 			assert.Len(t, rules, len(tt.expectedRules))
 

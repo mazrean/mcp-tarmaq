@@ -31,14 +31,6 @@ func (h *TarmaqTool) Tool() mcp.Tool {
 			mcp.Required(),
 			mcp.Description("already modified files"),
 		),
-		mcp.WithNumber("min_confidence",
-			mcp.DefaultNumber(0.7),
-			mcp.Description("minimum confidence. confidence represents the probability of change(0.0 ~ 1.0)."),
-		),
-		mcp.WithNumber("min_support",
-			mcp.DefaultNumber(3),
-			mcp.Description("minimum support. support represents the number of occurrences of the change."),
-		),
 	)
 }
 
@@ -57,22 +49,6 @@ func (h *TarmaqTool) Handle(ctx context.Context, request mcp.CallToolRequest) (*
 		return nil, fmt.Errorf("invalid files: %v", request.Params.Arguments["files"])
 	}
 
-	minConfidence, ok := request.Params.Arguments["min_confidence"].(float64)
-	if !ok {
-		slog.Error("invalid min_confidence",
-			slog.String("min_confidence", fmt.Sprintf("%v", request.Params.Arguments["min_confidence"])),
-		)
-		return nil, fmt.Errorf("invalid min_confidence: %v", request.Params.Arguments["min_confidence"])
-	}
-
-	minSupport, ok := request.Params.Arguments["min_support"].(float64)
-	if !ok {
-		slog.Error("invalid min_support",
-			slog.String("min_support", fmt.Sprintf("%v", request.Params.Arguments["min_support"])),
-		)
-		return nil, fmt.Errorf("invalid min_support: %v", request.Params.Arguments["min_support"])
-	}
-
 	tarmaqFiles := make([]tarmaq.FilePath, 0, len(iFiles))
 	for _, iFile := range iFiles {
 		file, ok := iFile.(string)
@@ -84,7 +60,7 @@ func (h *TarmaqTool) Handle(ctx context.Context, request mcp.CallToolRequest) (*
 		}
 		tarmaqFiles = append(tarmaqFiles, tarmaq.FilePath(file))
 	}
-	result, err := h.executer.Execute(tarmaqFiles, minConfidence, uint64(minSupport))
+	result, err := h.executer.Execute(tarmaqFiles)
 	if err != nil {
 		slog.Error("execute tarmaq",
 			slog.String("error", err.Error()),

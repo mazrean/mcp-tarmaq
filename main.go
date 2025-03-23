@@ -21,8 +21,10 @@ var CLI struct {
 	Version        kong.VersionFlag `kong:"short='v',help='Show version and exit.'"`
 	LogLevel       string           `kong:"short='l',default='info',enum='debug,info,warn,error',help='Log level',env='MCP_TARMAQ_LOG_LEVEL'"`
 	RepositoryPath string           `kong:"short='r',help='Path to the repository',env='MCP_TARMAQ_REPOSITORY_PATH'"`
-	CommitLimit    int              `kong:"default='200',help='Limit of commits to analyze',env='MCP_TARMAQ_COMMIT_LIMIT'"`
+	CommitLimit    int              `kong:"default='0',help='Limit of commits to analyze',env='MCP_TARMAQ_COMMIT_LIMIT'"`
 	MaxChangedFile int              `kong:"default='30',help='Limit of changed files in a commit',env='MCP_TARMAQ_MAX_CHANGED_FILE'"`
+	MinConfidence  float64          `kong:"default='0',help='Minimum confidence value for association rule mining',env='MCP_TARMAQ_MIN_CONFIDENCE'"`
+	MinSupport     float64          `kong:"default='0',help='Minimum support value for association rule mining',env='MCP_TARMAQ_MIN_SUPPORT'"`
 }
 
 // loadConfig loads and parses configuration from command line arguments
@@ -51,7 +53,7 @@ func createTarmaq() (*tarmaq.Tarmaq, error) {
 	tarmaq := tarmaq.NewTarmaq(repo, []tarmaq.TxFilter{
 		tarmaq.NewMaxSizeTxFilter(CLI.MaxChangedFile),
 		tarmaq.NewTarmaqTxFilter(),
-	}, tarmaq.NewAssociationRuleExtractor())
+	}, tarmaq.NewAssociationRuleExtractor(CLI.MinConfidence, uint64(CLI.MinSupport)))
 
 	return tarmaq, nil
 }

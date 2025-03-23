@@ -2,6 +2,7 @@ package tarmaq
 
 import (
 	"log/slog"
+	"slices"
 
 	"github.com/mazrean/mcp-tarmaq/pkg/collection"
 )
@@ -26,7 +27,7 @@ type Result struct {
 	Support    uint64
 }
 
-func (t *Tarmaq) Execute(files []FilePath, minConfidence float64, minSupport uint64) ([]*Result, error) {
+func (t *Tarmaq) Execute(files []FilePath) ([]*Result, error) {
 	transactions, fileMap, err := t.Repository.GetTransactions()
 	if err != nil {
 		return nil, err
@@ -38,7 +39,7 @@ func (t *Tarmaq) Execute(files []FilePath, minConfidence float64, minSupport uin
 		transactions = filter.Filter(transactions, query)
 	}
 
-	rules := t.Extractor.Extract(transactions, query, minConfidence, minSupport)
+	rules := t.Extractor.Extract(transactions, query)
 
 	return t.createResults(rules, fileMap), nil
 }
@@ -82,6 +83,10 @@ func (t *Tarmaq) createResults(rules []*Rule, fileMap map[FileID]FilePath) []*Re
 			)
 			continue
 		}
+
+		if path == "" {
+			continue
+		}
 		resultMap[rule.Right] = &Result{
 			Path:       path,
 			Confidence: rule.Confidence,
@@ -93,6 +98,16 @@ func (t *Tarmaq) createResults(rules []*Rule, fileMap map[FileID]FilePath) []*Re
 	for _, result := range resultMap {
 		results = append(results, result)
 	}
+	slices.SortFunc(results, func(a, b *Result) int {
+		switch {
+		case a.Confidence > b.Confidence:
+			return -1
+		case a.Confidence < b.Confidence:
+			return 1
+		default:
+			return int(a.Support) - int(b.Support)
+		}
+	})
 
 	return results
 }
