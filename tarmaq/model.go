@@ -40,7 +40,7 @@ type Rule struct {
 	Left       collection.Set[FileID]
 	Right      FileID
 	Confidence float64
-	Support    float64
+	Support    uint64
 }
 
 func (r *Rule) Apply(query *Query) bool {
