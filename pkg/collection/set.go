@@ -124,7 +124,11 @@ func (s Set[T]) Hash() uint64 {
 				elemHash = 1
 			}
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			elemHash = rv.Uint()
+			if rv.Int() < 0 {
+				elemHash = uint64(-rv.Int())
+			} else {
+				elemHash = uint64(rv.Int()) + (1 << 63)
+			}
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 			elemHash = rv.Uint()
 		case reflect.Float32, reflect.Float64:
