@@ -56,8 +56,6 @@ archives:
 nfpms:
   - id: mcp-tarmaq-nfpm
     file_name_template: "{{ .ProjectName }}_{{ .Arch }}"
-    builds:
-    - tbls-linux
     homepage: https://github.com/mazrean/mcp-tarmaq
     maintainer: Shunsuke Wakamatsu <shunsuke.w04@gmail.com>
     description: A Model Context Protocol (MCP) server that suggests files related to files that have already been modified.
