@@ -50,6 +50,7 @@ jobs:
           files: ./coverage.txt
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: mazrean/mcp-traQ
       - uses: actions/upload-artifact@v4
         with:
           name: coverage.txt
