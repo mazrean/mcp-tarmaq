@@ -16,7 +16,7 @@ func NewMaxSizeTxFilter(maxSize int) *MaxSizeTxFilter {
 	}
 }
 
-func (f *MaxSizeTxFilter) Filter(transactions []*Transaction, query *Query) []*Transaction {
+func (f *MaxSizeTxFilter) Filter(transactions []*Transaction, _ *Query) []*Transaction {
 	filtered := make([]*Transaction, 0, len(transactions))
 
 	for _, tx := range transactions {
@@ -30,6 +30,7 @@ func (f *MaxSizeTxFilter) Filter(transactions []*Transaction, query *Query) []*T
 
 var _ TxFilter = &TarmaqTxFilter{}
 
+//nolint:revive
 type TarmaqTxFilter struct{}
 
 func NewTarmaqTxFilter() *TarmaqTxFilter {

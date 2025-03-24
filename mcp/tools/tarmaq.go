@@ -40,7 +40,7 @@ type TarmaqResponse struct {
 	Support    uint64  `json:"support"`
 }
 
-func (h *TarmaqTool) Handle(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func (h *TarmaqTool) Handle(_ context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	iFiles, ok := request.Params.Arguments["files"].([]any)
 	if !ok {
 		slog.Error("invalid files",

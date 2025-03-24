@@ -117,9 +117,14 @@ func (s Set[T]) Hash() uint64 {
 		var elemHash uint64
 
 		rv := reflect.ValueOf(value)
+		//nolint:exhaustive // We only need to handle basic types
 		switch rv.Kind() {
+		case reflect.Bool:
+			if rv.Bool() {
+				elemHash = 1
+			}
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			elemHash = uint64(rv.Int())
+			elemHash = rv.Uint()
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 			elemHash = rv.Uint()
 		case reflect.Float32, reflect.Float64:

@@ -105,6 +105,7 @@ func (t *Tarmaq) createResults(rules []*Rule, fileMap map[FileID]FilePath) []*Re
 		case a.Confidence < b.Confidence:
 			return 1
 		default:
+			//nolint:gosec
 			return int(a.Support) - int(b.Support)
 		}
 	})
