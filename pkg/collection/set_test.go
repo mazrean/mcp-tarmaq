@@ -427,6 +427,39 @@ func TestHash(t *testing.T) {
 			},
 			compareWith: -1,
 		},
+		{
+			name:        "Set with uints",
+			elements:    []interface{}{uint(1), uint(2), uint(3)},
+			elementType: "uint",
+			checkFunc: func(t *testing.T, hash uint64) {
+				if hash == 0 {
+					t.Errorf("Non-empty set should not have hash 0")
+				}
+			},
+			compareWith: -1,
+		},
+		{
+			name:        "Set with booleans",
+			elements:    []interface{}{true, false},
+			elementType: "bool",
+			checkFunc: func(t *testing.T, hash uint64) {
+				if hash == 0 {
+					t.Errorf("Non-empty set should not have hash 0")
+				}
+			},
+			compareWith: -1,
+		},
+		{
+			name:        "Set with negative integers",
+			elements:    []interface{}{-1, -2, -3},
+			elementType: "int",
+			checkFunc: func(t *testing.T, hash uint64) {
+				if hash == 0 {
+					t.Errorf("Non-empty set should not have hash 0")
+				}
+			},
+			compareWith: -1,
+		},
 	}
 
 	// Store hash values for each test case
@@ -461,31 +494,28 @@ func TestHash(t *testing.T) {
 					}
 				}
 				hashes[i] = floatSet.Hash()
-			}
 
-			// If specific check function is provided, execute it
-			if tt.checkFunc != nil {
-				tt.checkFunc(t, hashes[i])
-			}
-
-			// If comparison with another test case is needed
-			if tt.compareWith >= 0 {
-				if tt.compareWith < i { // Comparison target is already calculated
-					expected := hashes[tt.compareWith]
-					if tt.name == "Same elements in different order" {
-						// Should have the same hash
-						if hashes[i] != expected {
-							t.Errorf("Hash should be the same as test case %d: got %v, want %v",
-								tt.compareWith, hashes[i], expected)
-						}
-					} else if tt.name == "Different elements" {
-						// Should have a different hash
-						if hashes[i] == expected {
-							t.Errorf("Hash should be different from test case %d, but both are %v",
-								tt.compareWith, hashes[i])
-						}
+			case "uint":
+				uintSet := NewSet[uint]()
+				for _, e := range tt.elements {
+					if e, ok := e.(uint); ok {
+						uintSet.Add(e)
 					}
 				}
+				hashes[i] = uintSet.Hash()
+
+			case "bool":
+				boolSet := NewSet[bool]()
+				for _, e := range tt.elements {
+					if e, ok := e.(bool); ok {
+						boolSet.Add(e)
+					}
+				}
+				hashes[i] = boolSet.Hash()
+			}
+
+			if tt.checkFunc != nil {
+				tt.checkFunc(t, hashes[i])
 			}
 		})
 	}

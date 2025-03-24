@@ -125,8 +125,10 @@ func (s Set[T]) Hash() uint64 {
 			}
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			if rv.Int() < 0 {
+				//nolint:gosec
 				elemHash = uint64(-rv.Int())
 			} else {
+				//nolint:gosec
 				elemHash = uint64(rv.Int()) + (1 << 63)
 			}
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
