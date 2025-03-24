@@ -32,7 +32,7 @@ func loadConfig() (*kong.Context, error) {
 	// Parse command line arguments
 	parser := kong.Must(&CLI,
 		kong.Name("mcp-tarmaq"),
-		kong.Description("MCP server for impact analysis.Suggest files that are likely to change at the same time in the changelog."),
+		kong.Description("A Model Context Protocol (MCP) server that suggests files related to files that have already been modified."),
 		kong.Vars{"version": fmt.Sprintf("%s (%s)", version, revision)},
 		kong.UsageOnError(),
 	)

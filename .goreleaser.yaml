@@ -5,6 +5,20 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+      - ppc64
+      - riscv64
+    goarm:
+      - "7"
+    mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
       - -trimpath
     ldflags:
@@ -12,26 +26,59 @@ builds:
       - -w
       - -X main.version={{.Version}}
       - -X main.revision={{.ShortCommit}}
-    goos:
-      - linux
-      - windows
-      - darwin
-    main: ./
 
 archives:
-  - format: tar.gz
-    # this name template makes the OS and Arch compatible with the results of uname.
-    name_template: >-
-      {{ .ProjectName }}_
+  - name_template: >-
+      {{- .ProjectName }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
-    # use zip for windows archives
+      {{- if .Arm }}v{{ .Arm }}{{ end -}}
     format_overrides:
-    - goos: windows
-      format: zip
+      - goos: windows
+        formats: [zip]
+    builds_info:
+      group: root
+      owner: root
+      mtime: "{{ .CommitDate }}"
+    files:
+      - src: README.md
+        info:
+          owner: root
+          group: root
+          mtime: "{{ .CommitDate }}"
+      - src: LICENSE
+        info:
+          owner: root
+          group: root
+          mtime: "{{ .CommitDate }}"
+nfpms:
+  - id: mcp-tarmaq-nfpm
+    file_name_template: "{{ .ProjectName }}_{{ .Arch }}"
+    builds:
+    - tbls-linux
+    homepage: https://github.com/mazrean/mcp-tarmaq
+    maintainer: Shunsuke Wakamatsu <shunsuke.w04@gmail.com>
+    description: A Model Context Protocol (MCP) server that suggests files related to files that have already been modified.
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+    bindir: /usr/bin
+    mtime: "{{ .CommitDate }}"
+brews:
+  - repository:
+      owner: mazrean
+      name: homebrew-tap
+    directory: Formula
+    goarm: "7"
+    homepage: https://github.com/mazrean/mcp-tarmaq
+    description: A Model Context Protocol (MCP) server that suggests files related to files that have already been modified.
+    license: MIT
+    test: |
+      system "#{bin}/mcp-tarmaq -v"
 checksum:
   name_template: 'checksums.txt'
 snapshot:
