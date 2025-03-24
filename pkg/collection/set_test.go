@@ -360,14 +360,14 @@ func TestHash(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		elements    []interface{}
+		elements    []any
 		elementType string // "int", "string", "float"
 		checkFunc   func(t *testing.T, hash uint64)
 		compareWith int // Index to compare with another test case (-1 if no comparison needed)
 	}{
 		{
 			name:        "Empty set returns 0",
-			elements:    []interface{}{},
+			elements:    []any{},
 			elementType: "int",
 			checkFunc: func(t *testing.T, hash uint64) {
 				if hash != 0 {
@@ -378,7 +378,7 @@ func TestHash(t *testing.T) {
 		},
 		{
 			name:        "Set with integers",
-			elements:    []interface{}{1, 2, 3},
+			elements:    []any{1, 2, 3},
 			elementType: "int",
 			checkFunc: func(t *testing.T, hash uint64) {
 				if hash == 0 {
@@ -389,14 +389,14 @@ func TestHash(t *testing.T) {
 		},
 		{
 			name:        "Same elements in different order",
-			elements:    []interface{}{3, 1, 2},
+			elements:    []any{3, 1, 2},
 			elementType: "int",
 			checkFunc:   nil, // No special check needed
 			compareWith: 1,   // Should have the same hash as "Set with integers"
 		},
 		{
 			name:        "Different elements",
-			elements:    []interface{}{4, 5, 6},
+			elements:    []any{4, 5, 6},
 			elementType: "int",
 			checkFunc: func(t *testing.T, hash uint64) {
 				if hash == 0 {
@@ -407,7 +407,7 @@ func TestHash(t *testing.T) {
 		},
 		{
 			name:        "Set with strings",
-			elements:    []interface{}{"a", "b", "c"},
+			elements:    []any{"a", "b", "c"},
 			elementType: "string",
 			checkFunc: func(t *testing.T, hash uint64) {
 				if hash == 0 {
@@ -418,7 +418,7 @@ func TestHash(t *testing.T) {
 		},
 		{
 			name:        "Set with floats",
-			elements:    []interface{}{1.1, 2.2, 3.3},
+			elements:    []any{1.1, 2.2, 3.3},
 			elementType: "float",
 			checkFunc: func(t *testing.T, hash uint64) {
 				if hash == 0 {
@@ -429,7 +429,7 @@ func TestHash(t *testing.T) {
 		},
 		{
 			name:        "Set with uints",
-			elements:    []interface{}{uint(1), uint(2), uint(3)},
+			elements:    []any{uint(1), uint(2), uint(3)},
 			elementType: "uint",
 			checkFunc: func(t *testing.T, hash uint64) {
 				if hash == 0 {
@@ -440,7 +440,7 @@ func TestHash(t *testing.T) {
 		},
 		{
 			name:        "Set with booleans",
-			elements:    []interface{}{true, false},
+			elements:    []any{true, false},
 			elementType: "bool",
 			checkFunc: func(t *testing.T, hash uint64) {
 				if hash == 0 {
@@ -451,7 +451,7 @@ func TestHash(t *testing.T) {
 		},
 		{
 			name:        "Set with negative integers",
-			elements:    []interface{}{-1, -2, -3},
+			elements:    []any{-1, -2, -3},
 			elementType: "int",
 			checkFunc: func(t *testing.T, hash uint64) {
 				if hash == 0 {

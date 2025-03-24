@@ -18,7 +18,7 @@ func makeFileSet(ids ...FileID) collection.Set[FileID] {
 }
 
 // Function to convert Set to slice and assert
-func assertSetEqual(t *testing.T, expected, actual collection.Set[FileID], msgAndArgs ...interface{}) {
+func assertSetEqual(t *testing.T, expected, actual collection.Set[FileID], msgAndArgs ...any) {
 	expectedSlice := slices.Collect(expected.Iter())
 	actualSlice := slices.Collect(actual.Iter())
 	assert.ElementsMatch(t, expectedSlice, actualSlice, msgAndArgs...)
