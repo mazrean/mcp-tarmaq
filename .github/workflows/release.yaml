@@ -9,8 +9,7 @@ jobs:
   build:
     name: Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    environment: Release
     steps:
       - uses: actions/checkout@v4
         with:
@@ -18,12 +17,18 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           args: release --clean
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
       - name: Upload assets
         uses: actions/upload-artifact@v4
         with:
