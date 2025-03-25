@@ -8,20 +8,20 @@ It uses TARMAQ[^1], a change impact analysis method that extracts simultaneously
 
 ## Install
 
-### deb
+### Homebrew
+```bash
+brew install mazrean/tap/mcp-tarmaq
+```
+
+### deb(Debian, Ubuntu)
 ```bash
 curl -o mcp-tarmaq.deb -L https://github.com/mazrean/mcp-tarmaq/releases/latest/download/mcp-tarmaq_amd64.deb
 dpkg -i mcp-tarmaq.deb
 ```
 
-### rpm
+### rpm(RedHat, CentOS)
 ```bash
 yum install https://github.com/mazrean/mcp-tarmaq/releases/latest/download/mcp-tarmaq_amd64.rpm
-```
-
-### Homebrew
-```bash
-brew install mazrean/tap/mcp-tarmaq
 ```
 
 ### Download prebuilt binaries
@@ -38,7 +38,7 @@ go install github.com/mazrean/mcp-tarmaq@latest
   "mcpServers": {
     "tarmaq": {
       "command": "mcp-tarmaq",
-      "args": [ "-r", "<repository directory path>" ],
+      "args": [ "--repository-path", "<repository directory path>" ],
     }
   }
 }
